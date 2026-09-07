@@ -61,7 +61,7 @@
 
         .header h1 {
             color: var(--primary-color);
-            font-size: clamp(1.5rem, 4vw, 2.25rem); /* Tamanho responsivo */
+            font-size: clamp(1.5rem, 4vw, 2.25rem);
             font-weight: 700;
             letter-spacing: -0.025em;
         }
@@ -140,7 +140,6 @@
             align-items: end;
         }
 
-        /* Ocupar linha inteira em telas pequenas, dividir em grandes */
         .full-width { grid-column: 1 / -1; }
         
         @media (min-width: 768px) {
@@ -224,7 +223,6 @@
             justify-content: space-between;
         }
 
-        /* Tabela Responsiva - Esconder Thead no mobile e usar layout de cards */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
@@ -282,7 +280,7 @@
             align-items: center;
             justify-content: center;
             padding: 6px 12px; 
-            border-radius: 9999px; /* Pill shape */
+            border-radius: 9999px;
             border: none; 
             cursor: pointer;
             font-weight: 500; 
@@ -322,12 +320,11 @@
         .footer-item { font-size: 0.95rem; color: var(--text-muted); }
         .footer-item strong { margin-left: 4px; font-size: 1.05rem; }
 
-        /* Media Queries para Responsividade Extrema (Mobile First / Cards) */
+        /* Media Queries para Responsividade (Mobile First / Cards) */
         @media (max-width: 768px) {
             .dashboard { grid-template-columns: 1fr 1fr; }
             
-            /* Transformar a tabela em cards no mobile */
-            thead { display: none; } /* Esconde o cabeçalho da tabela */
+            thead { display: none; }
             
             table, tbody, tr, td {
                 display: block;
@@ -350,7 +347,6 @@
             }
             
             td::before {
-                /* Usar o atributo data-label (adicionado no JS) como título no mobile */
                 content: attr(data-label);
                 float: left;
                 font-weight: 600;
@@ -386,7 +382,6 @@
             .card { padding: 16px; }
         }
 
-        /* Animação suave para exibir/esconder parcelas */
         #installmentsDiv {
             transition: all 0.3s ease;
             overflow: hidden;
@@ -491,20 +486,64 @@
 </div>
 
 <script>
-    // Recupera dados antigos (v5 > v4 > v3 > v2) ou inicia com array vazio.
-    // Removi os dados hardcoded (iniciais) para o repositório ficar limpo para qualquer usuário.
-    // Mas mantive a lógica de recuperar o que a Lorranne já digitou no navegador dela!
+    // As 41 parcelas extraídas das fotos do caderno da Lorranne
+    const initialData = [
+        { id: 1, account: 'Bemol - Empréstimo', installment: 'Setembro', date: '2026-09-21', amount: 474.91, type: 'saida', status: 'pendente' },
+        { id: 2, account: 'Bemol - Empréstimo', installment: 'Outubro', date: '2026-10-21', amount: 474.91, type: 'saida', status: 'pendente' },
+        { id: 3, account: 'Bemol - Dividida', installment: 'Setembro', date: '2026-09-15', amount: 191.00, type: 'saida', status: 'pendente' },
+        { id: 4, account: 'Bemol - Dividida', installment: 'Outubro', date: '2026-10-15', amount: 191.00, type: 'saida', status: 'pendente' },
+        { id: 5, account: 'Bemol - Dividida', installment: 'Novembro', date: '2026-11-15', amount: 191.00, type: 'saida', status: 'pendente' },
+        { id: 6, account: 'Bemol - Dividida', installment: 'Dezembro', date: '2026-12-15', amount: 191.00, type: 'saida', status: 'pendente' },
+        { id: 7, account: 'Nubank - Contas', installment: 'Setembro', date: '2026-09-10', amount: 1353.39, type: 'saida', status: 'pendente' },
+        { id: 8, account: 'Nubank - Contas', installment: 'Outubro', date: '2026-10-10', amount: 1353.39, type: 'saida', status: 'pendente' },
+        { id: 9, account: 'Nubank - Contas', installment: 'Novembro', date: '2026-11-10', amount: 1353.39, type: 'saida', status: 'pendente' },
+        { id: 10, account: 'Nubank - Contas', installment: 'Dezembro', date: '2026-12-10', amount: 1198.40, type: 'saida', status: 'pendente' },
+        { id: 11, account: 'Nubank - Contas', installment: 'Janeiro', date: '2027-01-10', amount: 1198.40, type: 'saida', status: 'pendente' },
+        { id: 12, account: 'Nubank - Contas', installment: 'Fevereiro', date: '2027-02-10', amount: 986.38, type: 'saida', status: 'pendente' },
+        { id: 13, account: 'Nubank - Contas', installment: 'Março', date: '2027-03-10', amount: 716.27, type: 'saida', status: 'pendente' },
+        { id: 14, account: 'Nubank - Contas', installment: 'Abril', date: '2027-04-10', amount: 327.62, type: 'saida', status: 'pendente' },
+        { id: 15, account: 'Nubank - Contas', installment: 'Maio', date: '2027-05-10', amount: 159.27, type: 'saida', status: 'pendente' },
+        { id: 16, account: 'Nubank - Contas', installment: 'Junho', date: '2027-06-10', amount: 150.50, type: 'saida', status: 'pendente' },
+        { id: 17, account: 'Nubank - Contas', installment: 'Julho', date: '2027-07-10', amount: 150.50, type: 'saida', status: 'pendente' },
+        { id: 18, account: 'Nubank - Empréstimo', installment: 'Setembro', date: '2026-09-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 19, account: 'Nubank - Empréstimo', installment: 'Outubro', date: '2026-10-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 20, account: 'Nubank - Empréstimo', installment: 'Novembro', date: '2026-11-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 21, account: 'Nubank - Empréstimo', installment: 'Dezembro', date: '2026-12-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 22, account: 'Nubank - Empréstimo', installment: 'Janeiro', date: '2027-01-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 23, account: 'Nubank - Empréstimo', installment: 'Fevereiro', date: '2027-02-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 24, account: 'Nubank - Empréstimo', installment: 'Março', date: '2027-03-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 25, account: 'Nubank - Empréstimo', installment: 'Abril', date: '2027-04-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 26, account: 'Nubank - Empréstimo', installment: 'Maio', date: '2027-05-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 27, account: 'Nubank - Empréstimo', installment: 'Junho', date: '2027-06-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 28, account: 'Nubank - Empréstimo', installment: 'Julho', date: '2027-07-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 29, account: 'Nubank - Empréstimo', installment: 'Agosto', date: '2027-08-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 30, account: 'Nubank - Empréstimo', installment: 'Setembro', date: '2027-09-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 31, account: 'Nubank - Empréstimo', installment: 'Outubro', date: '2027-10-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 32, account: 'Carrefour - Contas', installment: 'Setembro', date: '2026-09-21', amount: 982.49, type: 'saida', status: 'pendente' },
+        { id: 33, account: 'Carrefour - Contas', installment: 'Outubro', date: '2026-10-21', amount: 982.49, type: 'saida', status: 'pendente' },
+        { id: 34, account: 'Carrefour - Contas', installment: 'Novembro', date: '2026-11-21', amount: 740.49, type: 'saida', status: 'pendente' },
+        { id: 35, account: 'Carrefour - Contas', installment: 'Dezembro', date: '2026-12-21', amount: 740.49, type: 'saida', status: 'pendente' },
+        { id: 36, account: 'Carrefour - Contas', installment: 'Janeiro', date: '2027-01-21', amount: 529.42, type: 'saida', status: 'pendente' },
+        { id: 37, account: 'Carrefour - Contas', installment: 'Fevereiro', date: '2027-02-21', amount: 279.62, type: 'saida', status: 'pendente' },
+        { id: 38, account: 'Carrefour - Contas', installment: 'Março', date: '2027-03-21', amount: 279.62, type: 'saida', status: 'pendente' },
+        { id: 39, account: 'Carrefour - Contas', installment: 'Abril', date: '2027-04-21', amount: 279.62, type: 'saida', status: 'pendente' },
+        { id: 40, account: 'Carrefour - Contas', installment: 'Maio', date: '2027-05-21', amount: 79.62, type: 'saida', status: 'pendente' },
+        { id: 41, account: 'Carrefour - Contas', installment: 'Junho', date: '2027-06-21', amount: 200.00, type: 'saida', status: 'pendente' }
+    ];
+
+    // Recupera dados antigos (caso você já tenha mexido no seu computador) 
+    // OU inicia com os dados das fotos (initialData)
     const savedData = JSON.parse(localStorage.getItem('lorranne_finances_v5')) 
                     || JSON.parse(localStorage.getItem('lorranne_finances_v4')) 
                     || JSON.parse(localStorage.getItem('lorranne_finances_v3')) 
-                    || [];
+                    || initialData;
 
     let transactions = savedData;
 
     const tablesContainer = document.getElementById('tablesContainer');
     const form = document.getElementById('transactionForm');
 
-    // Funções de utilidade Formatação
+    // Funções de formatação
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
     };
@@ -516,7 +555,7 @@
         return `${parts[2]}/${parts[1]}/${parts[0]}`;
     };
 
-    // UI interativa
+    // UI interativa (Formulário)
     window.toggleInstallments = function() {
         const rec = document.getElementById('recurrence').value;
         const instDiv = document.getElementById('installmentsDiv');
@@ -570,7 +609,6 @@
             let tableRows = '';
             
             items.forEach(item => {
-                // Previne erros se status for nulo (migração de versão antiga)
                 if(!item.status) item.status = 'pendente';
 
                 if (item.type === 'entrada') {
@@ -591,7 +629,6 @@
                 const btnText = isPaid ? 'Pago ✓' : 'Pendente';
                 const amountColor = item.type === 'entrada' ? 'text-income' : 'text-expense';
 
-                // Atributos data-label são cruciais para o CSS Mobile (::before)
                 tableRows += `
                     <tr class="${rowClass}">
                         <td width="20%" data-label="Vencimento">${formatDate(item.date)}</td>
@@ -641,25 +678,23 @@
             tablesContainer.appendChild(section);
         });
 
-        // Atualizar Dashboard Global
+        // Atualiza os painéis numéricos
         document.getElementById('dashIncome').textContent = formatCurrency(dashIncome);
         document.getElementById('dashPending').textContent = formatCurrency(dashPending);
         document.getElementById('dashPaid').textContent = formatCurrency(dashPaid);
         document.getElementById('dashTotal').textContent = formatCurrency(dashTotal);
 
-        // Salvar localmente (Versão 5)
+        // Salvar tudo de forma segura no navegador!
         localStorage.setItem('lorranne_finances_v5', JSON.stringify(transactions));
     }
 
-    // Editar Valor
+    // Ação: Editar
     window.editAmount = function(id) {
         const item = transactions.find(t => t.id === id);
         if(item) {
-            let newVal = prompt(`Qual o NOVO VALOR para (${item.installment}) de ${item.account}? 
-
-Use ponto ou vírgula para centavos:`, item.amount);
+            let newVal = prompt(`Qual o NOVO VALOR para (${item.installment}) de ${item.account}? \n\nUse ponto ou vírgula para centavos:`, item.amount);
             if (newVal !== null) {
-                newVal = newVal.replace(',', '.'); // Compatibilidade Brasil
+                newVal = newVal.replace(',', '.');
                 const parsed = parseFloat(newVal);
                 if (!isNaN(parsed) && parsed >= 0) {
                     item.amount = parsed;
@@ -671,7 +706,7 @@ Use ponto ou vírgula para centavos:`, item.amount);
         }
     };
 
-    // Alternar Status
+    // Ação: Mudar Status (Pendente/Pago)
     window.toggleStatus = function(id) {
         const item = transactions.find(t => t.id === id);
         if(item) {
@@ -680,7 +715,6 @@ Use ponto ou vírgula para centavos:`, item.amount);
         }
     };
 
-    // Função de Soma de Meses para Data
     function addMonthsToDate(dateStr, monthsToAdd) {
         let [y, m, d] = dateStr.split('-');
         let date = new Date(y, parseInt(m)-1, d);
@@ -692,7 +726,7 @@ Use ponto ou vírgula para centavos:`, item.amount);
         return `${outY}-${outM}-${outD}`;
     }
 
-    // Submit Formulário
+    // Ação: Adicionar Lançamento
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -732,7 +766,6 @@ Use ponto ou vírgula para centavos:`, item.amount);
         
         updateUI();
         
-        // Reset Suave
         document.getElementById('installment').value = '';
         document.getElementById('amount').value = '';
         document.getElementById('recurrence').value = 'unica';
@@ -740,7 +773,7 @@ Use ponto ou vírgula para centavos:`, item.amount);
         document.getElementById('installment').focus();
     });
 
-    // Excluir
+    // Ação: Excluir
     window.deleteTransaction = function(id) {
         if(confirm('Tem certeza que deseja excluir esta parcela permanentemente?')) {
             transactions = transactions.filter(t => t.id !== id);
@@ -748,8 +781,7 @@ Use ponto ou vírgula para centavos:`, item.amount);
         }
     };
 
-    // Inicialização
-    // Define a data de hoje no campo de data por padrão
+    // Inicia tudo no carregamento
     document.getElementById('date').valueAsDate = new Date();
     updateUI();
 </script>
