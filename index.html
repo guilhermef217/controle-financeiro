@@ -61,7 +61,7 @@
 
         .header h1 {
             color: var(--primary-color);
-            font-size: clamp(1.5rem, 4vw, 2.25rem);
+            font-size: clamp(1.5rem, 4vw, 2.25rem); /* Tamanho responsivo */
             font-weight: 700;
             letter-spacing: -0.025em;
         }
@@ -140,6 +140,7 @@
             align-items: end;
         }
 
+        /* Ocupar linha inteira em telas pequenas, dividir em grandes */
         .full-width { grid-column: 1 / -1; }
         
         @media (min-width: 768px) {
@@ -223,6 +224,7 @@
             justify-content: space-between;
         }
 
+        /* Tabela Responsiva - Esconder Thead no mobile e usar layout de cards */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
@@ -280,7 +282,7 @@
             align-items: center;
             justify-content: center;
             padding: 6px 12px; 
-            border-radius: 9999px;
+            border-radius: 9999px; /* Pill shape */
             border: none; 
             cursor: pointer;
             font-weight: 500; 
@@ -320,11 +322,12 @@
         .footer-item { font-size: 0.95rem; color: var(--text-muted); }
         .footer-item strong { margin-left: 4px; font-size: 1.05rem; }
 
-        /* Media Queries para Responsividade (Mobile First / Cards) */
+        /* Media Queries para Responsividade Extrema (Mobile First / Cards) */
         @media (max-width: 768px) {
             .dashboard { grid-template-columns: 1fr 1fr; }
             
-            thead { display: none; }
+            /* Transformar a tabela em cards no mobile */
+            thead { display: none; } /* Esconde o cabeçalho da tabela */
             
             table, tbody, tr, td {
                 display: block;
@@ -347,6 +350,7 @@
             }
             
             td::before {
+                /* Usar o atributo data-label (adicionado no JS) como título no mobile */
                 content: attr(data-label);
                 float: left;
                 font-weight: 600;
@@ -382,6 +386,7 @@
             .card { padding: 16px; }
         }
 
+        /* Animação suave para exibir/esconder parcelas */
         #installmentsDiv {
             transition: all 0.3s ease;
             overflow: hidden;
@@ -486,7 +491,7 @@
 </div>
 
 <script>
-    // As 41 parcelas extraídas das fotos do caderno da Lorranne
+    // 41 parcelas originais extraídas das fotos do caderno da Lorranne
     const initialData = [
         { id: 1, account: 'Bemol - Empréstimo', installment: 'Setembro', date: '2026-09-21', amount: 474.91, type: 'saida', status: 'pendente' },
         { id: 2, account: 'Bemol - Empréstimo', installment: 'Outubro', date: '2026-10-21', amount: 474.91, type: 'saida', status: 'pendente' },
@@ -531,19 +536,20 @@
         { id: 41, account: 'Carrefour - Contas', installment: 'Junho', date: '2027-06-21', amount: 200.00, type: 'saida', status: 'pendente' }
     ];
 
-    // Recupera dados antigos (caso você já tenha mexido no seu computador) 
-    // OU inicia com os dados das fotos (initialData)
-    const savedData = JSON.parse(localStorage.getItem('lorranne_finances_v5')) 
-                    || JSON.parse(localStorage.getItem('lorranne_finances_v4')) 
-                    || JSON.parse(localStorage.getItem('lorranne_finances_v3')) 
-                    || initialData;
+    // Recupera dados antigos (versão 5).
+    let savedData = JSON.parse(localStorage.getItem('lorranne_finances_v6'));
+    
+    // CORREÇÃO AQUI: Se a lista estiver vazia (porque o navegador salvou vazio), ele força o carregamento das contas iniciais!
+    if (!savedData || savedData.length === 0) {
+        savedData = initialData;
+    }
 
     let transactions = savedData;
 
     const tablesContainer = document.getElementById('tablesContainer');
     const form = document.getElementById('transactionForm');
 
-    // Funções de formatação
+    // Funções de utilidade Formatação
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
     };
@@ -555,7 +561,7 @@
         return `${parts[2]}/${parts[1]}/${parts[0]}`;
     };
 
-    // UI interativa (Formulário)
+    // UI interativa
     window.toggleInstallments = function() {
         const rec = document.getElementById('recurrence').value;
         const instDiv = document.getElementById('installmentsDiv');
@@ -609,6 +615,7 @@
             let tableRows = '';
             
             items.forEach(item => {
+                // Previne erros se status for nulo (migração de versão antiga)
                 if(!item.status) item.status = 'pendente';
 
                 if (item.type === 'entrada') {
@@ -629,6 +636,7 @@
                 const btnText = isPaid ? 'Pago ✓' : 'Pendente';
                 const amountColor = item.type === 'entrada' ? 'text-income' : 'text-expense';
 
+                // Atributos data-label são cruciais para o CSS Mobile (::before)
                 tableRows += `
                     <tr class="${rowClass}">
                         <td width="20%" data-label="Vencimento">${formatDate(item.date)}</td>
@@ -678,23 +686,23 @@
             tablesContainer.appendChild(section);
         });
 
-        // Atualiza os painéis numéricos
+        // Atualizar Dashboard Global
         document.getElementById('dashIncome').textContent = formatCurrency(dashIncome);
         document.getElementById('dashPending').textContent = formatCurrency(dashPending);
         document.getElementById('dashPaid').textContent = formatCurrency(dashPaid);
         document.getElementById('dashTotal').textContent = formatCurrency(dashTotal);
 
-        // Salvar tudo de forma segura no navegador!
-        localStorage.setItem('lorranne_finances_v5', JSON.stringify(transactions));
+        // Salvar localmente
+        localStorage.setItem('lorranne_finances_v6', JSON.stringify(transactions));
     }
 
-    // Ação: Editar
+    // Editar Valor
     window.editAmount = function(id) {
         const item = transactions.find(t => t.id === id);
         if(item) {
             let newVal = prompt(`Qual o NOVO VALOR para (${item.installment}) de ${item.account}? \n\nUse ponto ou vírgula para centavos:`, item.amount);
             if (newVal !== null) {
-                newVal = newVal.replace(',', '.');
+                newVal = newVal.replace(',', '.'); // Compatibilidade Brasil
                 const parsed = parseFloat(newVal);
                 if (!isNaN(parsed) && parsed >= 0) {
                     item.amount = parsed;
@@ -706,7 +714,7 @@
         }
     };
 
-    // Ação: Mudar Status (Pendente/Pago)
+    // Alternar Status
     window.toggleStatus = function(id) {
         const item = transactions.find(t => t.id === id);
         if(item) {
@@ -715,6 +723,7 @@
         }
     };
 
+    // Função de Soma de Meses para Data
     function addMonthsToDate(dateStr, monthsToAdd) {
         let [y, m, d] = dateStr.split('-');
         let date = new Date(y, parseInt(m)-1, d);
@@ -726,7 +735,7 @@
         return `${outY}-${outM}-${outD}`;
     }
 
-    // Ação: Adicionar Lançamento
+    // Submit Formulário
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -766,6 +775,7 @@
         
         updateUI();
         
+        // Reset Suave
         document.getElementById('installment').value = '';
         document.getElementById('amount').value = '';
         document.getElementById('recurrence').value = 'unica';
@@ -773,7 +783,7 @@
         document.getElementById('installment').focus();
     });
 
-    // Ação: Excluir
+    // Excluir
     window.deleteTransaction = function(id) {
         if(confirm('Tem certeza que deseja excluir esta parcela permanentemente?')) {
             transactions = transactions.filter(t => t.id !== id);
@@ -781,7 +791,8 @@
         }
     };
 
-    // Inicia tudo no carregamento
+    // Inicialização
+    // Define a data de hoje no campo de data por padrão
     document.getElementById('date').valueAsDate = new Date();
     updateUI();
 </script>
