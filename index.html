@@ -249,7 +249,7 @@
 
 <script>
     // ==========================================
-    // 1. CONFIGURAÇÃO DO SUPABASE (COLE AQUI!)
+    // 1. CONFIGURAÇÃO DO SUPABASE (Corrigida!)
     // ==========================================
     const supabaseUrl = 'https://bovdpmvneiundafymoku.supabase.co'; 
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvdmRwbXZuZWl1bmRhZnltb2t1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3OTI1NTIsImV4cCI6MjEwNDM2ODU1Mn0.PZSZ_SLgA-IDIdmmHFVyNcCc2XrUB2vgBBY5e877JUQ'; 
@@ -263,20 +263,18 @@
     const loginForm = document.getElementById('loginForm');
     const errorMsg = document.getElementById('errorMsg');
 
-    // Verifica se o usuário já está logado ao abrir a página
     async function checkUser() {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
             loginScreen.style.display = 'none';
             appScreen.style.display = 'block';
-            updateUI(); // Carrega os dados apenas se estiver logada
+            updateUI();
         } else {
             loginScreen.style.display = 'flex';
             appScreen.style.display = 'none';
         }
     }
 
-    // Monitora mudanças (quando faz login ou logout)
     supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN') {
             loginScreen.style.display = 'none';
@@ -288,7 +286,6 @@
         }
     });
 
-    // Função de Fazer Login
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('loginEmail').value;
@@ -307,26 +304,61 @@
         }
     });
 
-    // Função de Sair (Logout)
     async function logout() {
         await supabase.auth.signOut();
     }
 
-    // Inicia checagem de usuário
     checkUser();
 
-
     // ==========================================
-    // 3. LÓGICA FINANCEIRA (Mantida do LocalStorage)
+    // 3. LÓGICA FINANCEIRA (Com as 41 contas)
     // ==========================================
     const initialData = [
         { id: 1, account: 'Bemol - Empréstimo', installment: 'Setembro', date: '2026-09-21', amount: 474.91, type: 'saida', status: 'pendente' },
         { id: 2, account: 'Bemol - Empréstimo', installment: 'Outubro', date: '2026-10-21', amount: 474.91, type: 'saida', status: 'pendente' },
+        
         { id: 3, account: 'Bemol - Dividida', installment: 'Setembro', date: '2026-09-15', amount: 191.00, type: 'saida', status: 'pendente' },
+        { id: 4, account: 'Bemol - Dividida', installment: 'Outubro', date: '2026-10-15', amount: 191.00, type: 'saida', status: 'pendente' },
+        { id: 5, account: 'Bemol - Dividida', installment: 'Novembro', date: '2026-11-15', amount: 191.00, type: 'saida', status: 'pendente' },
+        { id: 6, account: 'Bemol - Dividida', installment: 'Dezembro', date: '2026-12-15', amount: 191.00, type: 'saida', status: 'pendente' },
+
         { id: 7, account: 'Nubank - Contas', installment: 'Setembro', date: '2026-09-10', amount: 1353.39, type: 'saida', status: 'pendente' },
+        { id: 8, account: 'Nubank - Contas', installment: 'Outubro', date: '2026-10-10', amount: 1353.39, type: 'saida', status: 'pendente' },
+        { id: 9, account: 'Nubank - Contas', installment: 'Novembro', date: '2026-11-10', amount: 1353.39, type: 'saida', status: 'pendente' },
+        { id: 10, account: 'Nubank - Contas', installment: 'Dezembro', date: '2026-12-10', amount: 1198.40, type: 'saida', status: 'pendente' },
+        { id: 11, account: 'Nubank - Contas', installment: 'Janeiro', date: '2027-01-10', amount: 1198.40, type: 'saida', status: 'pendente' },
+        { id: 12, account: 'Nubank - Contas', installment: 'Fevereiro', date: '2027-02-10', amount: 986.38, type: 'saida', status: 'pendente' },
+        { id: 13, account: 'Nubank - Contas', installment: 'Março', date: '2027-03-10', amount: 716.27, type: 'saida', status: 'pendente' },
+        { id: 14, account: 'Nubank - Contas', installment: 'Abril', date: '2027-04-10', amount: 327.62, type: 'saida', status: 'pendente' },
+        { id: 15, account: 'Nubank - Contas', installment: 'Maio', date: '2027-05-10', amount: 159.27, type: 'saida', status: 'pendente' },
+        { id: 16, account: 'Nubank - Contas', installment: 'Junho', date: '2027-06-10', amount: 150.50, type: 'saida', status: 'pendente' },
+        { id: 17, account: 'Nubank - Contas', installment: 'Julho', date: '2027-07-10', amount: 150.50, type: 'saida', status: 'pendente' },
+
         { id: 18, account: 'Nubank - Empréstimo', installment: 'Setembro', date: '2026-09-17', amount: 637.00, type: 'saida', status: 'pendente' },
-        { id: 32, account: 'Carrefour - Contas', installment: 'Setembro', date: '2026-09-21', amount: 982.49, type: 'saida', status: 'pendente' }
-        // (Encurtado aqui visualmente, o código original tem todos)
+        { id: 19, account: 'Nubank - Empréstimo', installment: 'Outubro', date: '2026-10-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 20, account: 'Nubank - Empréstimo', installment: 'Novembro', date: '2026-11-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 21, account: 'Nubank - Empréstimo', installment: 'Dezembro', date: '2026-12-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 22, account: 'Nubank - Empréstimo', installment: 'Janeiro', date: '2027-01-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 23, account: 'Nubank - Empréstimo', installment: 'Fevereiro', date: '2027-02-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 24, account: 'Nubank - Empréstimo', installment: 'Março', date: '2027-03-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 25, account: 'Nubank - Empréstimo', installment: 'Abril', date: '2027-04-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 26, account: 'Nubank - Empréstimo', installment: 'Maio', date: '2027-05-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 27, account: 'Nubank - Empréstimo', installment: 'Junho', date: '2027-06-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 28, account: 'Nubank - Empréstimo', installment: 'Julho', date: '2027-07-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 29, account: 'Nubank - Empréstimo', installment: 'Agosto', date: '2027-08-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 30, account: 'Nubank - Empréstimo', installment: 'Setembro', date: '2027-09-17', amount: 637.00, type: 'saida', status: 'pendente' },
+        { id: 31, account: 'Nubank - Empréstimo', installment: 'Outubro', date: '2027-10-17', amount: 637.00, type: 'saida', status: 'pendente' },
+
+        { id: 32, account: 'Carrefour - Contas', installment: 'Setembro', date: '2026-09-21', amount: 982.49, type: 'saida', status: 'pendente' },
+        { id: 33, account: 'Carrefour - Contas', installment: 'Outubro', date: '2026-10-21', amount: 982.49, type: 'saida', status: 'pendente' },
+        { id: 34, account: 'Carrefour - Contas', installment: 'Novembro', date: '2026-11-21', amount: 740.49, type: 'saida', status: 'pendente' },
+        { id: 35, account: 'Carrefour - Contas', installment: 'Dezembro', date: '2026-12-21', amount: 740.49, type: 'saida', status: 'pendente' },
+        { id: 36, account: 'Carrefour - Contas', installment: 'Janeiro', date: '2027-01-21', amount: 529.42, type: 'saida', status: 'pendente' },
+        { id: 37, account: 'Carrefour - Contas', installment: 'Fevereiro', date: '2027-02-21', amount: 279.62, type: 'saida', status: 'pendente' },
+        { id: 38, account: 'Carrefour - Contas', installment: 'Março', date: '2027-03-21', amount: 279.62, type: 'saida', status: 'pendente' },
+        { id: 39, account: 'Carrefour - Contas', installment: 'Abril', date: '2027-04-21', amount: 279.62, type: 'saida', status: 'pendente' },
+        { id: 40, account: 'Carrefour - Contas', installment: 'Maio', date: '2027-05-21', amount: 79.62, type: 'saida', status: 'pendente' },
+        { id: 41, account: 'Carrefour - Contas', installment: 'Junho', date: '2027-06-21', amount: 200.00, type: 'saida', status: 'pendente' }
     ];
 
     let savedData = JSON.parse(localStorage.getItem('lorranne_finances_v6'));
