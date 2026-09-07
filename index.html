@@ -62,7 +62,16 @@
         .login-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
         .login-box .form-group { text-align: left; margin-bottom: 16px; }
         
-        #errorMsg { color: var(--expense-color); font-size: 0.85rem; margin-bottom: 16px; display: none; }
+        #errorMsg { 
+            color: white; 
+            background-color: var(--expense-color); 
+            padding: 10px; 
+            border-radius: 8px;
+            font-size: 0.85rem; 
+            margin-bottom: 16px; 
+            display: none; 
+            font-weight: 500;
+        }
 
         /* APLICATIVO PRINCIPAL */
         #appScreen { display: none; width: 100%; }
@@ -148,6 +157,7 @@
         <h2>Acesso Restrito</h2>
         <p>Faça login para ver suas contas</p>
         
+        <!-- Esta caixinha agora vai mostrar o erro EXATO para nós -->
         <p id="errorMsg"></p>
 
         <form id="loginForm">
@@ -164,7 +174,7 @@
     </div>
 </div>
 
-<!-- APLICATIVO PRINCIPAL (Fica oculto até o login) -->
+<!-- APLICATIVO PRINCIPAL -->
 <div id="appScreen">
     <div class="container">
         <div class="header">
@@ -249,7 +259,7 @@
 
 <script>
     // ==========================================
-    // 1. CONFIGURAÇÃO DO SUPABASE (Corrigida!)
+    // 1. CONFIGURAÇÃO DO SUPABASE
     // ==========================================
     const supabaseUrl = 'https://bovdpmvneiundafymoku.supabase.co'; 
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvdmRwbXZuZWl1bmRhZnltb2t1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3OTI1NTIsImV4cCI6MjEwNDM2ODU1Mn0.PZSZ_SLgA-IDIdmmHFVyNcCc2XrUB2vgBBY5e877JUQ'; 
@@ -269,22 +279,8 @@
             loginScreen.style.display = 'none';
             appScreen.style.display = 'block';
             updateUI();
-        } else {
-            loginScreen.style.display = 'flex';
-            appScreen.style.display = 'none';
         }
     }
-
-    supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN') {
-            loginScreen.style.display = 'none';
-            appScreen.style.display = 'block';
-            updateUI();
-        } else if (event === 'SIGNED_OUT') {
-            loginScreen.style.display = 'flex';
-            appScreen.style.display = 'none';
-        }
-    });
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -292,13 +288,31 @@
         const password = document.getElementById('loginPassword').value;
         const btn = document.getElementById('btnLogin');
         
-        btn.textContent = 'Carregando...';
+        btn.textContent = 'Verificando dados...';
         errorMsg.style.display = 'none';
 
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-        if (error) {
-            errorMsg.textContent = 'E-mail ou senha incorretos.';
+            if (error) {
+                // TRADUÇÃO DE ERROS PARA FACILITAR
+                if (error.message.includes('Invalid login credentials')) {
+                    errorMsg.textContent = '⛔ E-mail ou senha incorretos.';
+                } else if (error.message.includes('Email not confirmed')) {
+                    errorMsg.textContent = '⛔ O e-mail ainda não foi confirmado lá no painel do Supabase!';
+                } else {
+                    errorMsg.textContent = '⛔ Erro do Supabase: ' + error.message;
+                }
+                errorMsg.style.display = 'block';
+                btn.textContent = 'Entrar no Sistema';
+            } else {
+                // SUCESSO! Força a tela a mudar.
+                loginScreen.style.display = 'none';
+                appScreen.style.display = 'block';
+                updateUI();
+            }
+        } catch (err) {
+            errorMsg.textContent = '⛔ Erro de conexão com a internet ou script bloqueado.';
             errorMsg.style.display = 'block';
             btn.textContent = 'Entrar no Sistema';
         }
@@ -306,12 +320,15 @@
 
     async function logout() {
         await supabase.auth.signOut();
+        loginScreen.style.display = 'flex';
+        appScreen.style.display = 'none';
+        document.getElementById('loginPassword').value = '';
     }
 
     checkUser();
 
     // ==========================================
-    // 3. LÓGICA FINANCEIRA (Com as 41 contas)
+    // 3. LÓGICA FINANCEIRA
     // ==========================================
     const initialData = [
         { id: 1, account: 'Bemol - Empréstimo', installment: 'Setembro', date: '2026-09-21', amount: 474.91, type: 'saida', status: 'pendente' },
